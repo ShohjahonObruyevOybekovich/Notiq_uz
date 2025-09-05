@@ -56,7 +56,7 @@ Copy code
 curl -X POST http://localhost:8000/api/v1/messages \
   -H "Content-Type: application/json" \
   -H "X-API-Key: <PASTE_API_KEY>" \
-  -d '{"to":"+998901234567","text":"Salom, dunyo!","sender_id":"SECTORSOFT"}'
+  -d '{"to":"+998901234567","text":"Salom, dunyo!","sender_id":"Company_id"}'
 Response:
 
 json
