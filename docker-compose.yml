@@ -1,0 +1,59 @@
+version: "3.9"
+
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    ports:
+    - "5432:5432"
+
+
+  redis:
+    image: redis:7-alpine
+    ports:
+    - "6379:6379"
+
+
+  web:
+    build: .
+    command: bash -lc "python manage.py migrate && gunicorn root.asgi:application -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000"
+    env_file: .env
+    volumes:
+    - .:/app
+    depends_on:
+    - db
+    - redis
+    ports:
+    - "8000:8000"
+
+
+  worker:
+    build: .
+    command: bash -lc "celery -A core worker -l info"
+    env_file: .env
+    volumes:
+    - .:/app
+    depends_on:
+    - db
+    - redis
+
+
+  beat:
+    build: .
+    command: bash -lc "celery -A core beat -l info"
+    env_file: .env
+    volumes:
+    - .:/app
+    depends_on:
+    - db
+    - redis
+
+
+volumes:
+  pgdata:
